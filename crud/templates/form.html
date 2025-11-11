@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{%block main_content %}
+<h2>Insert Movie</h2>
+
+<form method="POST" action="{{url_for('insert_movie')}}" id="movie_form">
+    <label >
+        Movie ID/TT:
+        <input type="text" name="movie_tt">
+    </label>
+    <br>
+    <label >
+        Movie Title:
+        <input type="text" name="movie_title">
+    </label>
+    <br>
+    <label >
+        Movie Release Year:
+        <input type="text" name="movie_release">
+    </label>
+    <br>
+    <input type="submit" value="Insert Movie">
+
+    
+</form>
+{% endblock %}

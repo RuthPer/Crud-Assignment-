@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{%block main_content %}
+<h2>Update Movie</h2>
+
+<form method="POST" action="{{url_for('update_movie',tt=movie.tt)}}" id="movie_form">
+    <label >
+        Title
+        <input type="text" name="title" value="{{movie.title}}">
+    </label>
+    <br>
+    <label >
+        Movie Id
+        <input type="text" name="movie_id" value="{{movie.tt}}">
+    </label>
+    <br>
+    <label >
+        Release Year
+        <input type="text" name="release" value={{movie.release}} id="">
+    </label>
+    <br>
+    <label >
+        Added By
+        <input type="text" name="addedby" value="{{movie.addedby}}" id="">
+    </label>
+    <br>
+    <label >
+        Director ID
+        <input type="text" name="director_id"  value="{{movie.director}}" id="">
+    </label>
+
+    <br>
+    <label for="">
+        Director: 
+    </label>
+
+    {{direct}}
+    <br>
+    <input type="submit" name="select_type" value="Update">
+    <input type="submit" name="select_type" value="Delete" >
+</form>
+{% endblock %}
