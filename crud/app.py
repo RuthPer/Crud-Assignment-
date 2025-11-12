@@ -7,6 +7,13 @@ import secrets
 import cs304dbi as dbi
 import db_methods
 
+def clean(input):
+    """Converts 'None', 'null', or '' to real Python None for SQL."""
+    if input is None:
+        return None
+    input = input.strip()
+    return None if input.lower() in ('none', 'null', '') else input
+
 # we need a secret_key to use flash() and sessions
 app.secret_key = secrets.token_hex()
 
@@ -58,6 +65,7 @@ def insert_movie():
     return render_template("form.html",page_title="Insert Movie")
 
 @app.route("/update_movie/<tt>",methods=["GET","POST"])
+
 def update_movie(tt):
     """
     This method allows the users to see update movies values 
@@ -73,11 +81,11 @@ def update_movie(tt):
         director=director['name']
 
     if request.method =="POST":
-        title=request.form.get("title")
-        movie_id=request.form.get("movie_id")
-        release=request.form.get("release")
-        addedby=staff_id #Try to fix 
-        director_id=request.form.get("director_id")
+        title = clean(request.form.get("title"))
+        movie_id = clean(request.form.get("movie_id"))
+        release = clean(request.form.get("release"))
+        addedby = clean(request.form.get("addedby"))
+        director_id = clean(request.form.get("director_id"))
 
         option= request.form.get("select_type")
         if option=="Delete":

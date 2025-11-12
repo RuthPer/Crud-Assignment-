@@ -1,88 +1,121 @@
-/* the --color-header and others are CSS variables, which we access later. 
-   I chose these colors using https://venngage.com/tools/accessible-color-palette-generator
-   I liked the contrasting palette2 colors.
-
-   The idea is that
-
-   * the header (blue family) color is for headers and the background color of the nav bar buttons.
-   * the nav bar will have white text on the header bgcolor
-   * the nav bar will use the focus (greenish) color for 
-
-*/
-
 HTML {
-    --color-header: #0073e6;  /* for H1-H6 and nav buttons. */
-    --color-focus: #5ba300;   /* for focussed elements and mouseover on nav */
-    --color-alert: #b51963;   /* for flashed messages and such. */
-    --color-nav-fg: white;    /* foreground color of nav text. */
-    --font-family: Verdana;
-    font-family: var(--font-family)
-}
-
-/* For flashed messages; make them stand out using reddish and italics */
-
-#messages {
-    color: var(--color-alert);
-    font-style: italic;
-}
-
-
-h1, h2, h3, h4, h5, h6 {
-    color: var(--color-header);
-}
-
-h1 {
-    font-size: 200%;
-}
-    
-
-/* for a simple navbar. Talk to Scott if you want drop-downs. */
-nav > ul {
+    --color-header: #0073e6;
+    --color-focus: #5ba300;
+    --color-alert: #b51963;
+    --color-nav-fg: white;
+    --font-family: "Segoe UI", Verdana, sans-serif;
+    font-family: var(--font-family);
+    background-color: #f9f9fb;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* NAVIGATION BAR */
+  nav > ul {
     display: flex;
-    flex-direction: row;
-}
-
-nav ul {
+    justify-content: center;
+    flex-wrap: wrap;
     list-style-type: none;
-    margin: 0px;
-    padding: 0px;
-}
-
-nav > ul > li {
-    flex: 0 0 auto;
-    width: 15em; 
-}
-
-nav button, nav a {
-    display: block;
-    box-sizing: border-box; /* easier to make button and A the same size */
-    width: 100%;
-    height: 40px;
-    padding: 0px;
-    padding-bottom: 5px;
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-header);
+  }
+  
+  nav > ul > li {
+    margin: 5px;
+  }
+  
+  nav a {
+    display: inline-block;
     background-color: var(--color-header);
     color: var(--color-nav-fg);
-    border: 2px solid black;
+    padding: 10px 20px;
     border-radius: 5px;
-    cursor: pointer;
-    /* Firefox uses font -apple-system unless I repeat the font spec here. */
-    font-family: var(--font-family);
+    text-decoration: none;
     font-weight: bold;
-    font-size: 1.4rem;
-}
-
-/* Only the top-level buttons are centered; lower ones are left-aligned. */
-nav > ul > li > button , nav > ul > li > a {
-    text-align: center;
-}
-
-/* because of the margin trick, this can only be used for the last element */
-
-nav li.right {
-    margin-left: auto;
-}
-
-nav button:hover, button:focus, nav a:hover, nav a:focus {
+    transition: background-color 0.2s ease;
+    white-space: nowrap; /* Prevent wrapping */
+  }
+  
+  nav a:hover {
     background-color: var(--color-focus);
-}
-
+  }
+  
+  /* HEADERS */
+  h1, h2, h3 {
+    color: var(--color-header);
+    text-align: center;
+    margin-top: 1.2em;
+  }
+  
+  /* FLASH MESSAGES */
+  #messages {
+    color: var(--color-alert);
+    font-style: italic;
+    text-align: center;
+    margin-top: 10px;
+  }
+  
+  /* FORM CONTAINERS */
+  form {
+    background-color: white;
+    max-width: 400px;
+    margin: 30px auto;
+    padding: 20px 25px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+  }
+  
+  form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+  }
+  
+  form input, form select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+  
+  form input[type="submit"], form button {
+    background-color: var(--color-header);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.2s ease;
+  }
+  
+  form input[type="submit"]:hover, form button:hover {
+    background-color: var(--color-focus);
+  }
+  
+  /* PARAGRAPH TEXT */
+  p {
+    text-align: center;
+    color: #444;
+    font-size: 1rem;
+  }
+  
+  /* MAKE LARGE FORMS NICELY CENTERED */
+  input[name="movie_tt"],
+  input[name="movie_title"],
+  input[name="movie_release"],
+  input[name="title"],
+  input[name="movie_id"],
+  input[name="release"],
+  input[name="addedby"],
+  input[name="director_id"] {
+    width: 100%;
+  }
+  
