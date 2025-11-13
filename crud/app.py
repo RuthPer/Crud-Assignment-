@@ -8,7 +8,7 @@ import cs304dbi as dbi
 import db_methods
 
 def clean(input):
-    """Converts 'None', 'null', or '' to real Python None for SQL."""
+    """ A helper function that Converts 'None', 'null', or '' to real Python None for SQL."""
     if input is None:
         return None
     input = input.strip()
@@ -30,10 +30,16 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
 @app.route('/')
 def index():
+    """
+    Initail landing page
+    """
     return render_template('main.html', page_title='Main Page')
 
 @app.route('/about/')
 def about():
+    """
+    The about page
+    """
     flash('this is a flashed message')
     return render_template('about.html', page_title='About Us')
 
@@ -46,21 +52,32 @@ def insert_movie():
     conn=dbi.connect()
     staff_id=10051
     if request.method =="POST":
-        tt=request.form.get("movie_tt")
-        title=request.form.get("movie_title")
-        release=request.form.get("movie_release")
-        #Displays data that is missing from input
-        data={"Movies TT":tt,"Title":title,"Release":release}
-        for item in data:
-            if data[item]=="":
-                flash(f"Missing Input: {item}")
-        if "" not in [tt,title,release]:
-            result=db_methods.insert_movie(conn,int(tt),title,release,staff_id)
-            print(result)
+        try:
+            tt=int(request.form.get("movie-tt"))
+            title=request.form.get("movie-title")
+            release=request.form.get("movie-release")
 
-            if result==False:
-                return redirect(url_for("update_movie",tt=tt))
+            if tt>0:
+                #Displays data that is missing from input
+                data={"Movies TT":tt,"Title":title,"Release":release}
+                for item in data:
+                    if data[item]=="":
+                        flash(f"Missing Input: {item}")
+                if "" not in [tt,title,release]:
+                    result=db_methods.insert_movie(conn,tt,title,release,staff_id)
+                    print(result)
+                    flash(f"Movie {title} was successfully inserted!")
+                    return redirect(url_for("update_movie",tt=tt))
+        
+            
+            else:
+                flash("Please Enter an none negative int for TT")
+                
+        except ValueError:
+            flash("Please Enter an int for TT")
+            
 
+        
 
     return render_template("form.html",page_title="Insert Movie")
 
@@ -74,29 +91,75 @@ def update_movie(tt):
     conn=dbi.connect()
     movie_data=db_methods.get_movie(conn,tt)
     director=db_methods.get_director(conn,tt)
-    print(director)
+
+    
     if director==None:
         director="None Specified"
     else:
         director=director['name']
 
+    #Gets data from the form on the site 
     if request.method =="POST":
-        title = clean(request.form.get("title"))
-        movie_id = clean(request.form.get("movie_id"))
-        release = clean(request.form.get("release"))
-        addedby = clean(request.form.get("addedby"))
-        director_id = clean(request.form.get("director_id"))
+        title = clean(request.form.get("movie-title"))
 
-        option= request.form.get("select_type")
-        if option=="Delete":
-            db_methods.delete_movie(conn,tt)
-            flash(f"Movie: {title} was deleted successfully!")
-            return redirect(url_for("index"))
-        else:
-            db_methods.update_movie(conn,title,movie_id,release,addedby,director_id)
-            flash(f"Updated Movie: {title}")
-        
+        try:
+            movie_id = int(request.form.get("movie-tt"))
+            release = clean(request.form.get("movie-release"))
+            addedby = clean(request.form.get("movie-addedby"))
+            director_id = clean(request.form.get("movie-director"))
 
+            if movie_id>0:
+                current_tt=int(tt)
+                new_tt=int(movie_id)
+                print(tt)
+                print(movie_id)
+
+                #Checks what button the user 
+                option= request.form.get("select_type")
+                if option=="delete":
+                    db_methods.delete_movie(conn,tt)
+                    flash(f"Movie: {title} was deleted successfully!")
+                    return redirect(url_for("index"))
+                else:
+                    if new_tt!=current_tt:
+                        if db_methods.check_dups(conn,new_tt):
+                            flash("Movie already exists")
+                            return render_template("update.html",page_title="Update Page",
+                                    movie=movie_data,
+                                    direct=director)
+                        else:
+                            print("Test")
+                            db_methods.update_movie(conn,title,current_tt,new_tt,release,addedby,director_id)
+                    else:
+                        print("Test")
+                        db_methods.update_movie(conn,title,current_tt,new_tt,release,addedby,director_id)
+                
+                            
+                    #flash(f"Updated Movie: {title}")
+
+                    #Grab Director Name again to update html
+                    director=db_methods.get_director(conn,current_tt)
+                    
+                    print(director)
+                    if director==None:
+                        director="None Specified"
+                        
+                    else:
+                        director=director['name']
+
+                    movie_data={'tt': new_tt, 'title': title, 'release': release, 'director': director_id, 'addedby': addedby}
+                    print(movie_data)
+
+                    if current_tt==new_tt:
+                        return render_template("update.html",page_title="Update Page",
+                                    movie=movie_data,
+                                    direct=director)
+                    else:
+                        return redirect(url_for('update_movie',tt=new_tt))
+            else:
+                flash("Please Enter an Non-negative int for TT")
+        except ValueError:
+            flash("Please Enter an int for MovieID")
 
     return render_template("update.html",page_title="Update Page",
                         movie=movie_data,
@@ -113,7 +176,8 @@ def select_movie():
     print(movie_data)
     if movie_data==[]:
         flash("There are no current incomplete Movies found!")
-
+    
+    #Makes sure that a movie is selected if not flashes a message 
     if request.method =="POST" and request.form.get("movie_selected")== "":
         flash("Please select a movie ")
     elif request.method =="POST":
@@ -122,14 +186,6 @@ def select_movie():
 
     return render_template("select_movie.html",page_title="Select Incomplete Movies",
                             movies=movie_data)
-
-
-
-
-
-
-
-
 
 if __name__ == '__main__':
     import sys, os

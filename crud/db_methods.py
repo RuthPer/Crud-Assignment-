@@ -58,15 +58,35 @@ def delete_movie(conn,tt):
                     """,[tt])
     conn.commit()
 
-def update_movie(conn,title,tt,release,addedby,director):
+def update_movie(conn,title,current_tt,new_tt,release,addedby,director):
     """
     Will update a specified movie form the database
     """
     curs=dbi.dict_cursor(conn)
     curs.execute("""
                     update movie set title=%s,tt=%s,`release`=%s,addedby=%s,director=%s where tt=%s
-                    """,[title,tt,release,addedby,director,tt])
+                    """,[title,new_tt,release,addedby,director,current_tt])
+    print("sucessfull insert")
     conn.commit()
+    
+
+def check_dups(conn,new_tt):
+    """
+    Checks Database of duplicates in Movie ID/TT
+    """
+    curs=dbi.dict_cursor(conn)
+    curs.execute("""
+                select count(*) from movie where tt=%s
+                """,[new_tt])
+
+    found_items=curs.fetchone()
+    print(found_items)
+
+    if found_items['count(*)']>0:
+        return True
+    return False
+
+
 
 def select_movies(conn):
     """
