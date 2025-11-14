@@ -131,6 +131,7 @@ def update_movie(tt):
         title = clean(request.form.get("movie-title"))
         release = clean(request.form.get("movie-release"))
         addedby = clean(request.form.get("movie-addedby"))
+        option= request.form.get("select_type")
         # Try except to make sure the movie tt is an int
         try:
             movie_id = int(request.form.get("movie-tt"))
@@ -141,7 +142,11 @@ def update_movie(tt):
                 if value == None:
                     flash(f"Please fill out {label} ")
             
-            if addedby==None:
+            # Handles delete option separately
+            # If addedby is None and the user wants to delete the movie
+            if addedby==None and option=="delete":
+                return redirect(url_for("index"))
+            elif addedby==None:
                 flash("Please enter a valid Added By ID")
             else:
 
@@ -161,7 +166,7 @@ def update_movie(tt):
                         print(movie_id)
 
                         #Checks what button the user 
-                        option= request.form.get("select_type")
+                        
                         if option=="delete":
                             db_methods.delete_movie(conn,tt)
                             flash(f"Movie: {title} was deleted successfully!")
