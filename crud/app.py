@@ -57,48 +57,54 @@ def insert_movie():
         #Gets data from the form on the site
         title=request.form.get("movie-title")
         release=request.form.get("movie-release")
-        tt=''
-        data={"Movies TT":tt,"Title":title,"Release":release}
 
-        # Try except to make sure the movie tt is an int
-        try:
-            tt=int(request.form.get("movie-tt"))
+        if len(release) >4 :
+            flash("Please enter a valid release year")
+        else: 
+
+            tt=''
             data={"Movies TT":tt,"Title":title,"Release":release}
 
-            if tt>0:
-                #Displays data that is missing from input
+            # Try except to make sure the movie tt is an int
+            try:
+                tt=int(request.form.get("movie-tt"))
                 
-                for item in data:
-                    if data[item]=="":
-                        flash(f"Missing Input: {item}")
-                if "" not in [tt,title,release]:
-                    result=db_methods.insert_movie(conn,tt,title,release,staff_id)
-                    print(result)
+                data={"Movies TT":tt,"Title":title,"Release":release}
 
-                    #If movie already exsists in the databse redirect to update page
-                    #If not then insert the movie and redirect to update page
-                    if result==False:
-                        flash(f"Error, did not insert movie with tt: {tt} already exsists in the Database!")
-                        return redirect(url_for("update_movie",tt=tt))
+                if tt>0:
+                    #Displays data that is missing from input
+                    
+                    for item in data:
+                        if data[item]=="":
+                            flash(f"Missing Input: {item}")
+                    if "" not in [tt,title,release]:
+                        result=db_methods.insert_movie(conn,tt,title,release,staff_id)
+                        print(result)
 
-                    else:
-                        flash(f"Movie {title} was successfully inserted!")
-                        return redirect(url_for("update_movie",tt=tt))
-           
-            else:
+                        #If movie already exsists in the databse redirect to update page
+                        #If not then insert the movie and redirect to update page
+                        if result==False:
+                            flash(f"Error, did not insert movie with tt: {tt} already exsists in the Database!")
+                            return redirect(url_for("update_movie",tt=tt))
 
+                        else:
+                            flash(f"Movie {title} was successfully inserted!")
+                            return redirect(url_for("update_movie",tt=tt))
+            
+                else:
+
+                    #Displays data that is missing from input
+                    for item in data:
+                        if data[item]=="":
+                            flash(f"Missing Input: {item}")
+                    flash("Please Enter an Non-negative int for TT")
+                    
+            except ValueError:
                 #Displays data that is missing from input
                 for item in data:
-                    if data[item]=="":
-                        flash(f"Missing Input: {item}")
-                flash("Please Enter an none negative int for TT")
-                
-        except ValueError:
-            #Displays data that is missing from input
-            for item in data:
-                    if data[item]=="":
-                        flash(f"Missing Input: {item}")
-            flash("Please Enter an int for TT")
+                        if data[item]=="":
+                            flash(f"Missing Input: {item}")
+                flash("Please Enter an int for TT")
             
 
         
@@ -123,68 +129,91 @@ def update_movie(tt):
     #Gets data from the form on the site 
     if request.method =="POST":
         title = clean(request.form.get("movie-title"))
-
+        release = clean(request.form.get("movie-release"))
+        addedby = clean(request.form.get("movie-addedby"))
         # Try except to make sure the movie tt is an int
         try:
             movie_id = int(request.form.get("movie-tt"))
-            release = clean(request.form.get("movie-release"))
-            addedby = clean(request.form.get("movie-addedby"))
-            director_id = clean(request.form.get("movie-director"))
-
-            # Checks if the movie tt is a non-negative int
-            if movie_id>0:
-                current_tt=int(tt)
-                new_tt=int(movie_id)
-                print(tt)
-                print(movie_id)
-
-                #Checks what button the user 
-                option= request.form.get("select_type")
-                if option=="delete":
-                    db_methods.delete_movie(conn,tt)
-                    flash(f"Movie: {title} was deleted successfully!")
-                    return redirect(url_for("index"))
-                else:
-                    # Checks if the new tt is different from the current tt
-                    # If it is different it checks if the new tt already exsists in the database
-                    if new_tt!=current_tt:
-                        if db_methods.check_dups(conn,new_tt):
-                            flash(f"Movie with tt: {new_tt} already exists")
-                            return render_template("update.html",page_title="Update Page",
-                                    movie=movie_data,
-                                    direct=director)
-                        else:
-                            print("Test")
-                            db_methods.update_movie(conn,title,current_tt,new_tt,release,addedby,director_id)
-                    else:
-                        print("Test")
-                        db_methods.update_movie(conn,title,current_tt,new_tt,release,addedby,director_id)
-                
-                            
-                    flash(f"Updated Movie: {title}")
-
-                    #Grab Director Name again to update html
-                    director=db_methods.get_director(conn,current_tt)
-                    
-                    print(director)
-                    if director==None:
-                        director="None Specified"
-                        
-                    else:
-                        director=director['name']
-
-                    movie_data={'tt': new_tt, 'title': title, 'release': release, 'director': director_id, 'addedby': addedby}
-                    print(movie_data)
-
-                    if current_tt==new_tt:
-                        return render_template("update.html",page_title="Update Page",
-                                    movie=movie_data,
-                                    direct=director)
-                    else:
-                        return redirect(url_for('update_movie',tt=new_tt))
+            
+            # Displays data that is missing from input
+            bounds = {"Title": title, "Release Year": release, "Added By": addedby, "Movie TT": movie_id}
+            for label, value in bounds.items():
+                if value == None:
+                    flash(f"Please fill out {label} ")
+            
+            if addedby==None:
+                flash("Please enter a valid Added By ID")
             else:
-                flash("Please Enter an Non-negative int for TT")
+
+                if release==None:
+                    flash("Please enter a valid release year")
+                elif  len(release) >4:
+                    flash("Please enter a valid release year")
+                else:    
+                    
+                    director_id = clean(request.form.get("movie-director"))
+
+                    # Checks if the movie tt is a non-negative int
+                    if movie_id>0:
+                        current_tt=int(tt)
+                        new_tt=int(movie_id)
+                        print(tt)
+                        print(movie_id)
+
+                        #Checks what button the user 
+                        option= request.form.get("select_type")
+                        if option=="delete":
+                            db_methods.delete_movie(conn,tt)
+                            flash(f"Movie: {title} was deleted successfully!")
+                            return redirect(url_for("index"))
+                        else:
+                            # Checks if the new tt is different from the current tt
+                            # If it is different it checks if the new tt already exsists in the database
+                            if new_tt!=current_tt:
+                                if db_methods.check_dups(conn,new_tt):
+                                    flash(f"Movie with tt: {new_tt} already exists")
+                                    return render_template("update.html",page_title="Update Page",
+                                            movie=movie_data,
+                                            direct=director)
+                                else:
+                                    
+                                    db_methods.update_movie(conn,title,current_tt,new_tt,release,addedby,director_id)
+                            else:
+                                
+                                db_methods.update_movie(conn,title,current_tt,new_tt,release,addedby,director_id)
+                        
+                                    
+                            flash(f"Updated Movie: {title}")
+
+                            #Grab Director Name again to update html
+                            director=db_methods.get_director(conn,current_tt)
+                            
+                            print(director)
+                            if director==None:
+                                director="None Specified"
+                                
+                            else:
+                                director=director['name']
+
+                            movie_data={'tt': new_tt, 'title': title, 'release': release, 'director': director_id, 'addedby': addedby}
+                            print(movie_data)
+
+                            #If the tt was not changed stay on the same page
+                            if current_tt==new_tt:
+                                return render_template("update.html",page_title="Update Page",
+                                            movie=movie_data,
+                                            direct=director)
+                            else:
+                                return redirect(url_for('update_movie',tt=new_tt))
+                    else:
+                        flash("Please Enter an Non-negative int for TT")
         except ValueError:
+            # Displays data that is missing from input
+            bounds = {"Title": title, "Release Year": release, "Added By": addedby }
+            for label, value in bounds.items():
+                if value == None:
+                    flash(f"Please fill out {label} ")
+
             flash("Please Enter an int for MovieID")
 
     return render_template("update.html",page_title="Update Page",

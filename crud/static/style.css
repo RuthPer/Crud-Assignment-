@@ -1,3 +1,4 @@
+/*By Ruth and Aayah*/
 HTML {
     --color-header: #0073e6;
     --color-focus: #5ba300;
@@ -10,7 +11,7 @@ HTML {
     padding: 0;
   }
   
-  /* NAVIGATION BAR */
+  /* nav bar */
   nav > ul {
     display: flex;
     justify-content: center;
@@ -34,21 +35,21 @@ HTML {
     text-decoration: none;
     font-weight: bold;
     transition: background-color 0.2s ease;
-    white-space: nowrap; /* Prevent wrapping */
+    white-space: nowrap; /* prevents wrapping */
   }
   
   nav a:hover {
     background-color: var(--color-focus);
   }
   
-  /* HEADERS */
+  /* headers */
   h1, h2, h3 {
     color: var(--color-header);
     text-align: center;
     margin-top: 1.2em;
   }
   
-  /* FLASH MESSAGES */
+  /* flash messages */
   #messages {
     color: var(--color-alert);
     font-style: italic;
@@ -56,7 +57,7 @@ HTML {
     margin-top: 10px;
   }
   
-  /* FORM CONTAINERS */
+  /* form containers */
   form {
     background-color: white;
     max-width: 400px;
@@ -100,22 +101,10 @@ HTML {
     background-color: var(--color-focus);
   }
   
-  /* PARAGRAPH TEXT */
+  /* paragraph text */
   p {
     text-align: center;
     color: #444;
     font-size: 1rem;
-  }
-  
-  /* MAKE LARGE FORMS NICELY CENTERED */
-  input[name="movie_tt"],
-  input[name="movie_title"],
-  input[name="movie_release"],
-  input[name="title"],
-  input[name="movie_id"],
-  input[name="release"],
-  input[name="addedby"],
-  input[name="director_id"] {
-    width: 100%;
   }
   
