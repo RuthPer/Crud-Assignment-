@@ -1,3 +1,4 @@
+#By Ruth and Aayah
 from flask import (Flask, render_template, make_response, url_for, request,
                    redirect, flash, session, send_from_directory, jsonify)
 from werkzeug.utils import secure_filename
@@ -40,7 +41,6 @@ def about():
     """
     The about page
     """
-    flash('this is a flashed message')
     return render_template('about.html', page_title='About Us')
 
 @app.route('/insert/',methods=["GET","POST"])
@@ -49,31 +49,55 @@ def insert_movie():
     This function will insert a new movie into the database, I f it is not a new
     movie then it will send the user to the update page
     """
+    
     conn=dbi.connect()
     staff_id=10051
     if request.method =="POST":
+
+        #Gets data from the form on the site
+        title=request.form.get("movie-title")
+        release=request.form.get("movie-release")
+        tt=''
+        data={"Movies TT":tt,"Title":title,"Release":release}
+
+        # Try except to make sure the movie tt is an int
         try:
             tt=int(request.form.get("movie-tt"))
-            title=request.form.get("movie-title")
-            release=request.form.get("movie-release")
+            data={"Movies TT":tt,"Title":title,"Release":release}
 
             if tt>0:
                 #Displays data that is missing from input
-                data={"Movies TT":tt,"Title":title,"Release":release}
+                
                 for item in data:
                     if data[item]=="":
                         flash(f"Missing Input: {item}")
                 if "" not in [tt,title,release]:
                     result=db_methods.insert_movie(conn,tt,title,release,staff_id)
                     print(result)
-                    flash(f"Movie {title} was successfully inserted!")
-                    return redirect(url_for("update_movie",tt=tt))
-        
-            
+
+                    #If movie already exsists in the databse redirect to update page
+                    #If not then insert the movie and redirect to update page
+                    if result==False:
+                        flash(f"Error, did not insert movie with tt: {tt} already exsists in the Database!")
+                        return redirect(url_for("update_movie",tt=tt))
+
+                    else:
+                        flash(f"Movie {title} was successfully inserted!")
+                        return redirect(url_for("update_movie",tt=tt))
+           
             else:
+
+                #Displays data that is missing from input
+                for item in data:
+                    if data[item]=="":
+                        flash(f"Missing Input: {item}")
                 flash("Please Enter an none negative int for TT")
                 
         except ValueError:
+            #Displays data that is missing from input
+            for item in data:
+                    if data[item]=="":
+                        flash(f"Missing Input: {item}")
             flash("Please Enter an int for TT")
             
 
@@ -81,8 +105,7 @@ def insert_movie():
 
     return render_template("form.html",page_title="Insert Movie")
 
-@app.route("/update_movie/<tt>",methods=["GET","POST"])
-
+@app.route("/update/<tt>",methods=["GET","POST"])
 def update_movie(tt):
     """
     This method allows the users to see update movies values 
@@ -92,7 +115,6 @@ def update_movie(tt):
     movie_data=db_methods.get_movie(conn,tt)
     director=db_methods.get_director(conn,tt)
 
-    
     if director==None:
         director="None Specified"
     else:
@@ -102,12 +124,14 @@ def update_movie(tt):
     if request.method =="POST":
         title = clean(request.form.get("movie-title"))
 
+        # Try except to make sure the movie tt is an int
         try:
             movie_id = int(request.form.get("movie-tt"))
             release = clean(request.form.get("movie-release"))
             addedby = clean(request.form.get("movie-addedby"))
             director_id = clean(request.form.get("movie-director"))
 
+            # Checks if the movie tt is a non-negative int
             if movie_id>0:
                 current_tt=int(tt)
                 new_tt=int(movie_id)
@@ -121,9 +145,11 @@ def update_movie(tt):
                     flash(f"Movie: {title} was deleted successfully!")
                     return redirect(url_for("index"))
                 else:
+                    # Checks if the new tt is different from the current tt
+                    # If it is different it checks if the new tt already exsists in the database
                     if new_tt!=current_tt:
                         if db_methods.check_dups(conn,new_tt):
-                            flash("Movie already exists")
+                            flash(f"Movie with tt: {new_tt} already exists")
                             return render_template("update.html",page_title="Update Page",
                                     movie=movie_data,
                                     direct=director)
@@ -135,7 +161,7 @@ def update_movie(tt):
                         db_methods.update_movie(conn,title,current_tt,new_tt,release,addedby,director_id)
                 
                             
-                    #flash(f"Updated Movie: {title}")
+                    flash(f"Updated Movie: {title}")
 
                     #Grab Director Name again to update html
                     director=db_methods.get_director(conn,current_tt)
@@ -178,10 +204,10 @@ def select_movie():
         flash("There are no current incomplete Movies found!")
     
     #Makes sure that a movie is selected if not flashes a message 
-    if request.method =="POST" and request.form.get("movie_selected")== "":
+    if request.method =="POST" and request.form.get("menu-tt")== "":
         flash("Please select a movie ")
     elif request.method =="POST":
-        tt=request.form.get("movie_selected")
+        tt=request.form.get("menu-tt")
         return redirect(url_for('update_movie',tt=tt))
 
     return render_template("select_movie.html",page_title="Select Incomplete Movies",

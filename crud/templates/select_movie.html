@@ -6,7 +6,7 @@
 <form method="POST" action="{{url_for('select_movie')}}" id="movie_form">
     <label >
         Movies with release dates or directors:
-        <select name="movie_selected" id="">
+        <select id="menu-tt" name="menu-tt">
         <option value="">Choose One</option>
         {% for movie in movies%}
         <option value="{{movie.tt}}">{{movie.title}}</option>
