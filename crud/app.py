@@ -24,7 +24,7 @@ app.secret_key = secrets.token_hex()
 # For CRUD and Ajax, use your personal db
 # For project work, use your team db
 
-print(dbi.conf('rp104_db'))
+print(dbi.conf('ao106_db'))
 
 # This gets us better error messages for certain common request errors
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
@@ -131,7 +131,7 @@ def update_movie(tt):
         title = clean(request.form.get("movie-title"))
         release = clean(request.form.get("movie-release"))
         addedby = clean(request.form.get("movie-addedby"))
-        option= request.form.get("select_type")
+        option = request.form.get("select_type") or request.form.get("submit")
         # Try except to make sure the movie tt is an int
         try:
             movie_id = int(request.form.get("movie-tt"))
@@ -168,7 +168,7 @@ def update_movie(tt):
                         #Checks what button the user 
                         
                         if option=="delete":
-                            db_methods.delete_movie(conn,tt)
+                            db_methods.delete_movie(conn,int(tt))
                             flash(f"Movie: {title} was deleted successfully!")
                             return redirect(url_for("index"))
                         else:
@@ -176,7 +176,7 @@ def update_movie(tt):
                             # If it is different it checks if the new tt already exsists in the database
                             if new_tt!=current_tt:
                                 if db_methods.check_dups(conn,new_tt):
-                                    flash(f"Movie with tt: {new_tt} already exists")
+                                    flash(f"Movie already exists")
                                     return render_template("update.html",page_title="Update Page",
                                             movie=movie_data,
                                             direct=director)

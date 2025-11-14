@@ -55,7 +55,7 @@ def delete_movie(conn,tt):
     curs=dbi.dict_cursor(conn)
     curs.execute("""
                     delete from movie where tt=%s
-                    """,[tt])
+                    """,[int(tt)])
     conn.commit()
 
 def update_movie(conn,title,current_tt,new_tt,release,addedby,director):
